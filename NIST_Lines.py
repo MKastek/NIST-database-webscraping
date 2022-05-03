@@ -10,6 +10,7 @@ from pandas.core.common import SettingWithCopyWarning
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 
+
 class Lines_LIBS(object):
 
     def __init__(self, element, low_w, upper_w, strongLines=True, first_sp=True):
@@ -74,3 +75,8 @@ class Lines_LIBS(object):
 
     def filter_sp(self, sp=1):
         self.data_frame = self.data_frame[self.data_frame['sp_num'] == 1]
+
+
+if __name__ == '__main__':
+    line = Lines_LIBS('Ar', 200, 940, strongLines=False, first_sp=False)
+    print(line.data_frame)
