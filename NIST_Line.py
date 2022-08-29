@@ -5,6 +5,7 @@ import io
 import re
 import matplotlib.pyplot as plt
 import warnings
+from pathlib import Path
 from pandas.core.common import SettingWithCopyWarning
 
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
@@ -12,7 +13,7 @@ warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 class NIST_line():
 
-    def __init__(self, element, low_w, upper_w, sp_num ,strongLines=True):
+    def __init__(self, element, low_w, upper_w, sp_num, threshold=0):
 
         self.element = element
         self.low_w = low_w
@@ -23,13 +24,11 @@ class NIST_line():
 
         self.clean_intensity()
 
-        if strongLines:
-            self.filter_strong_lines()
+        self.line_threshold(threshold)
 
         self.filter_nan_values()
-        self.reset_index()
-
         self.filter_sp(sp_num)
+        self.reset_index()
 
     def retrieve_data(self):
         site = "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra={}" \
@@ -43,8 +42,8 @@ class NIST_line():
         html_data = soup.get_text()
         html_data = html_data.replace('"', "")
         data = io.StringIO(html_data)
-        self.data_frame = pd.read_csv(data, sep="\t").drop('Unnamed: 20',axis=1)
-        print(self.data_frame.columns)
+        self.data_frame = pd.read_csv(data, sep="\t")
+        print(self.data_frame)
 
     def clean_intensity(self):
 
@@ -52,7 +51,7 @@ class NIST_line():
         self.data_frame = self.data_frame[self.data_frame['intens'] != '']
         self.data_frame['intens'] = pd.to_numeric(self.data_frame['intens'])
 
-    def filter_strong_lines(self, value=10 ** 2):
+    def line_threshold(self, value=10 ** 2):
         # strength line gA > 10**8
         self.data_frame = self.data_frame[self.data_frame['intens'] > value]
 
@@ -69,20 +68,18 @@ class NIST_line():
             self.data_frame = self.data_frame[['obs_wl_air(nm)', 'intens', 'gA(s^-1)']]
 
     def filter_sp(self, sp_num):
-
         self.data_frame = self.data_frame[self.data_frame['sp_num'].isin(sp_num)]
 
-    def search_nearest_lines(self, line, count):
+    def search_n_nearest_lines(self, line, number_of_lines):
         sorted_by_lines_df = self.data_frame.iloc[(self.data_frame['obs_wl_air(nm)'] - line).abs().argsort()]
         sorted_by_lines_df = sorted_by_lines_df[sorted_by_lines_df['intens'].notna()]
-        sorted_by_intens_df = sorted_by_lines_df[:5].sort_values(by=['intens'], ascending=False)
-        print(sorted_by_intens_df)
+        sorted_by_intens_df = sorted_by_lines_df[:number_of_lines].sort_values(by=['intens'], ascending=False)
+        return sorted_by_intens_df
 
-        return pd.DataFrame(
-            self.data_frame.iloc[(self.data_frame['obs_wl_air(nm)'] - line).abs().argsort()[:count]].sort_values(
-                by=['intens'], ascending=False).iloc[0]).transpose()
+    def save_to_csv(self, filename):
+        self.data_frame.to_csv(Path.cwd() / filename / '.csv')
 
 
 if __name__ == '__main__':
-    line = NIST_line('Ar', 200, 940, strongLines=False, sp_num= [1,2,4])
-    line.search_nearest_lines(201, 5)
+    line = NIST_line('Ar', 200, 940, sp_num= [1,2,4])
+    print(line.search_n_nearest_lines(501, 5))
