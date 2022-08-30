@@ -3,7 +3,7 @@ from NIST_Line import NIST_Line
 
 
 def initParser():
-    parser = argparse.ArgumentParser(description="To jest opis")
+    parser = argparse.ArgumentParser(description="NIST Database webscraping searches for closest lines.")
     parser.add_argument('element', help='Name of element from NIST Database',type=str)
     parser.add_argument('line', help='Value of wavelength to be searched', type=float)
     parser.add_argument('n', help='Number of wavelengths to be searched', type=int)
