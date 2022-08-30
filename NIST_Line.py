@@ -11,7 +11,7 @@ from pandas.core.common import SettingWithCopyWarning
 warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
 
 
-class NIST_line():
+class NIST_Line():
 
     def __init__(self, element, low_w, upper_w, sp_num, threshold=0):
 
@@ -21,9 +21,7 @@ class NIST_line():
         self.data_frame = pd.DataFrame()
 
         self.retrieve_data()
-
         self.clean_intensity()
-
         self.line_threshold(threshold)
 
         self.filter_nan_values()
@@ -42,11 +40,9 @@ class NIST_line():
         html_data = soup.get_text()
         html_data = html_data.replace('"', "")
         data = io.StringIO(html_data)
-        self.data_frame = pd.read_csv(data, sep="\t")
-        print(self.data_frame)
+        self.data_frame = pd.read_csv(data, sep="\t").drop('Unnamed: 20', axis=1)
 
     def clean_intensity(self):
-
         self.data_frame['intens'] = self.data_frame['intens'].apply(lambda item: re.sub('[^0-9]', '', str(item)))
         self.data_frame = self.data_frame[self.data_frame['intens'] != '']
         self.data_frame['intens'] = pd.to_numeric(self.data_frame['intens'])
@@ -74,12 +70,10 @@ class NIST_line():
         sorted_by_lines_df = self.data_frame.iloc[(self.data_frame['obs_wl_air(nm)'] - line).abs().argsort()]
         sorted_by_lines_df = sorted_by_lines_df[sorted_by_lines_df['intens'].notna()]
         sorted_by_intens_df = sorted_by_lines_df[:number_of_lines].sort_values(by=['intens'], ascending=False)
+        sorted_by_intens_df.reset_index(inplace=True, drop=True)
         return sorted_by_intens_df
 
     def save_to_csv(self, filename):
         self.data_frame.to_csv(Path.cwd() / filename / '.csv')
 
 
-if __name__ == '__main__':
-    line = NIST_line('Ar', 200, 940, sp_num= [1,2,4])
-    print(line.search_n_nearest_lines(501, 5))
