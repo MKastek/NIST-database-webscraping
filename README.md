@@ -25,10 +25,10 @@ options:
 
 # Examples:
 ```
-lines_Ar = NIST_Line(element='Ar', low_w=200, upper_w=900, sp_num=[1,2,3])
-lines_Ar.search_n_nearest_lines(811, 10)
+python NIST_lines.py Ar 811 10 data 
 ```
 
+Output in file data.csv: 
 |    | element   |   sp_num |   obs_wl_air(nm) |   unc_obs_wl |   ritz_wl_air(nm) |   unc_ritz_wl |   intens |   gA(s^-1) | Acc   |   Ei(cm-1) |   Ek(cm-1) | conf_i                | term_i   | J_i   | conf_k                | term_k   | J_k   |   Type | tp_ref   | line_ref   |
 |---:|:----------|---------:|-----------------:|-------------:|------------------:|--------------:|---------:|-----------:|:------|-----------:|-----------:|:----------------------|:---------|:------|:----------------------|:---------|:------|-------:|:---------|:-----------|
 |  0 | Ar        |        1 |          811.531 |       0.001  |           811.531 |       0.001   |    35000 |    2.3e+08 | B     |    93143.8 |     105463 | 3s2.3p5.(2P*<3/2>).4s | 2[3/2]*  | 2     | 3s2.3p5.(2P*<3/2>).4p | 2[5/2]   | 3     |    nan | T5223    | L2634      |
