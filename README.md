@@ -1,6 +1,6 @@
 ## NIST Database webscraping
 
-The script allows you to download spectral data for a selected element from: https://physics.nist.gov/PhysRefData/ASD/lines_form.html
+The script allows you to download spectral data for a selected element from: https://physics.nist.gov/PhysRefData/ASD/lines_form.html  
 Help:
 ```
 python NIST_lines.py --help
